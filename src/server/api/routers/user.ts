@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { currentUser } from '@clerk/nextjs/server'
+import { db } from '@/server/db'
 
 import { createTRPCRouter, publicProcedure } from '@/server/api/trpc'
 import { user } from '@/server/db/schema'

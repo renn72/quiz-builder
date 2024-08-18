@@ -65,8 +65,6 @@ export const questionRouter = createTRPCRouter({
         })
         .returning({ id: question.id })
 
-      return res
-
       const questionId = res[0]?.id
       if (!questionId) {
         throw new TRPCError({
@@ -117,4 +115,31 @@ export const questionRouter = createTRPCRouter({
 
       return res
     }),
+  getAllQuestions: publicProcedure.query(async ({ ctx }) => {
+    const res = await ctx.db.query.question.findMany({
+      with: {
+        topics: {
+          with: {
+            topic: true
+          }
+        },
+        tags: {
+          with: {
+            tag: true
+          }
+        },
+        images: {
+          with: {
+            image: true
+          }
+        },
+        pdfs: {
+          with: {
+            pdf: true
+          }
+        }
+      },
+    })
+    return res
+  }),
 })
