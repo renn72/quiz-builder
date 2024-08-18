@@ -13,7 +13,7 @@ import { relations } from 'drizzle-orm'
  */
 export const createTable = sqliteTableCreator((name) => `qb_${name}`)
 
-export const users = createTable('user', {
+export const user = createTable('user', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   clerkId: text('clerk_id'),
   name: text('name', { length: 256 }),
@@ -30,14 +30,14 @@ export const users = createTable('user', {
   updatedAt: text('updatedAt'),
 })
 
-export const usersRelations = relations(users, ({ many }) => ({
-  role: many(roles),
+export const userRelations = relations(user, ({ many }) => ({
+  role: many(role),
 }))
 
-export const roles = createTable('role', {
+export const role = createTable('role', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name', { length: 256 }),
-  user: int('user_id', { mode: 'number' }).references(() => users.id, {
+  user: int('user_id', { mode: 'number' }).references(() => user.id, {
     onDelete: 'cascade',
   }),
   createdAt: text('created_at')
@@ -46,10 +46,10 @@ export const roles = createTable('role', {
   updatedAt: text('updatedAt'),
 })
 
-export const rolesRelations = relations(roles, ({ one }) => ({
-  user: one(users, {
-    fields: [roles.user],
-    references: [users.id],
+export const rolesRelations = relations(role, ({ one }) => ({
+  user: one(user, {
+    fields: [role.user],
+    references: [user.id],
   }),
 }))
 
@@ -72,6 +72,7 @@ export const question = createTable('question', {
 export const questionRelations = relations(question, ({ many }) => ({
   multipleChoiceOptions: many(multipleChoiceOption),
   topics: many(topicToQuestion),
+  tags: many(tagToQuestion),
 }))
 
 export const multipleChoiceOption = createTable('multiple_choice_option', {
@@ -116,6 +117,7 @@ export const topic = createTable('topic', {
 
 export const topicRelations = relations(topic, ({ many }) => ({
   questions: many(topicToQuestion),
+  tags: many(tagToQuestion),
 }))
 
 export const topicToQuestion = createTable('topic_to_question', {
@@ -144,6 +146,58 @@ export const topicToQuestionRelations = relations(
     }),
     question: one(question, {
       fields: [topicToQuestion.question],
+      references: [question.id],
+    }),
+  }),
+)
+
+export const tag = createTable('tag', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  name: text('name', { length: 256 }),
+  notes: text('notes'),
+  topic: int('topic_id', { mode: 'number' }).references(() => topic.id, {
+    onDelete: 'cascade',
+  }),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+  updatedAt: text('updatedAt'),
+})
+
+export const tagRelations = relations(tag, ({ many, one }) => ({
+  questions: many(tagToQuestion),
+  topic: one(topic, {
+    fields: [tag.topic],
+    references: [topic.id],
+  }),
+}))
+
+export const tagToQuestion = createTable('tag_to_question', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  tag: int('tag_id', { mode: 'number' }).references(() => tag.id, {
+    onDelete: 'cascade',
+  }),
+  question: int('question_id', { mode: 'number' }).references(
+    () => question.id,
+    {
+      onDelete: 'cascade',
+    },
+  ),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+  updatedAt: text('updatedAt'),
+})
+
+export const tagToQuestionRelations = relations(
+  tagToQuestion,
+  ({ one }) => ({
+    tag: one(tag, {
+      fields: [tagToQuestion.tag],
+      references: [tag.id],
+    }),
+    question: one(question, {
+      fields: [tagToQuestion.question],
       references: [question.id],
     }),
   }),
