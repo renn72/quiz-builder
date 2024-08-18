@@ -64,27 +64,66 @@ export const question = createTable('question', {
   ),
   case: text('case'),
   question: text('question'),
+  multipleChoiceOptions: text('multiple_choice_options'),
   type: text('type'),
+  answer: text('answer'),
   isTemplate: int('is_template', { mode: 'boolean' }),
   createdBy: int('created_by'),
 })
 
 export const questionRelations = relations(question, ({ many }) => ({
-  multipleChoiceOptions: many(multipleChoiceOption),
   topics: many(topicToQuestion),
   tags: many(tagToQuestion),
+  images: many(imagesToQuestion),
+  pdfs: many(pdfsToQuestion),
 }))
 
-export const multipleChoiceOption = createTable('multiple_choice_option', {
+export const images = createTable('images', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  name: text('name', { length: 256 }),
-  createdAt: int('created_at', { mode: 'timestamp' })
-    .default(sql`(unixepoch())`)
-    .notNull(),
-  updatedAt: int('updated_at', { mode: 'timestamp' }).$onUpdate(
-    () => new Date(),
+  url: text('url'),
+})
+
+export const imagesRelations = relations(images, ({ many }) => ({
+  questions: many(imagesToQuestion),
+}))
+
+export const imagesToQuestion = createTable('images_to_question', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  imageId: int('image_id', { mode: 'number' }).references(
+    () => images.id,
+    {
+      onDelete: 'cascade',
+    },
   ),
-  questionBank: int('question_id', { mode: 'number' }).references(
+  questionId: int('question_id', { mode: 'number' }).references(
+    () => question.id,
+    {
+      onDelete: 'cascade',
+    },
+  ),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+})
+
+export const imagesToQuestionRelations = relations(
+  imagesToQuestion,
+  ({ one }) => ({
+    image: one(images, {
+      fields: [imagesToQuestion.imageId],
+      references: [images.id],
+    }),
+    question: one(question, {
+      fields: [imagesToQuestion.questionId],
+      references: [question.id],
+    }),
+  }),
+)
+
+export const pdfs = createTable('pdfs', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  url: text('url'),
+  questionId: int('question_id', { mode: 'number' }).references(
     () => question.id,
     {
       onDelete: 'cascade',
@@ -92,11 +131,38 @@ export const multipleChoiceOption = createTable('multiple_choice_option', {
   ),
 })
 
-export const multipleChoiceOptionRelations = relations(
-  multipleChoiceOption,
+export const pdfsRelations = relations(pdfs, ({ many }) => ({
+  questions: many(pdfsToQuestion),
+}))
+
+export const pdfsToQuestion = createTable('pdfs_to_question', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  pdfId: int('pdf_id', { mode: 'number' }).references(
+    () => pdfs.id,
+    {
+      onDelete: 'cascade',
+    },
+  ),
+  questionId: int('question_id', { mode: 'number' }).references(
+    () => question.id,
+    {
+      onDelete: 'cascade',
+    },
+  ),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+})
+
+export const pdfsToQuestionRelations = relations(
+  pdfsToQuestion,
   ({ one }) => ({
+    pdf: one(pdfs, {
+      fields: [pdfsToQuestion.pdfId],
+      references: [pdfs.id],
+    }),
     question: one(question, {
-      fields: [multipleChoiceOption.questionBank],
+      fields: [pdfsToQuestion.questionId],
       references: [question.id],
     }),
   }),
@@ -108,24 +174,21 @@ export const topic = createTable('topic', {
   createdAt: int('created_at', { mode: 'timestamp' })
     .default(sql`(unixepoch())`)
     .notNull(),
-  updatedAt: int('updated_at', { mode: 'timestamp' }).$onUpdate(
-    () => new Date(),
-  ),
   info: text('info'),
   createdBy: int('created_by'),
 })
 
 export const topicRelations = relations(topic, ({ many }) => ({
   questions: many(topicToQuestion),
-  tags: many(tagToQuestion),
+  tags: many(tag),
 }))
 
 export const topicToQuestion = createTable('topic_to_question', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  topic: int('topic_id', { mode: 'number' }).references(() => topic.id, {
+  topicId: int('topic_id', { mode: 'number' }).references(() => topic.id, {
     onDelete: 'cascade',
   }),
-  question: int('question_id', { mode: 'number' }).references(
+  questionId: int('question_id', { mode: 'number' }).references(
     () => question.id,
     {
       onDelete: 'cascade',
@@ -134,18 +197,17 @@ export const topicToQuestion = createTable('topic_to_question', {
   createdAt: text('created_at')
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
-  updatedAt: text('updatedAt'),
 })
 
 export const topicToQuestionRelations = relations(
   topicToQuestion,
   ({ one }) => ({
     topic: one(topic, {
-      fields: [topicToQuestion.topic],
+      fields: [topicToQuestion.topicId],
       references: [topic.id],
     }),
     question: one(question, {
-      fields: [topicToQuestion.question],
+      fields: [topicToQuestion.questionId],
       references: [question.id],
     }),
   }),
@@ -155,29 +217,28 @@ export const tag = createTable('tag', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name', { length: 256 }),
   notes: text('notes'),
-  topic: int('topic_id', { mode: 'number' }).references(() => topic.id, {
+  topicId: int('topic_id', { mode: 'number' }).references(() => topic.id, {
     onDelete: 'cascade',
   }),
   createdAt: text('created_at')
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
-  updatedAt: text('updatedAt'),
 })
 
 export const tagRelations = relations(tag, ({ many, one }) => ({
   questions: many(tagToQuestion),
   topic: one(topic, {
-    fields: [tag.topic],
+    fields: [tag.topicId],
     references: [topic.id],
   }),
 }))
 
 export const tagToQuestion = createTable('tag_to_question', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  tag: int('tag_id', { mode: 'number' }).references(() => tag.id, {
+  tagId: int('tag_id', { mode: 'number' }).references(() => tag.id, {
     onDelete: 'cascade',
   }),
-  question: int('question_id', { mode: 'number' }).references(
+  questionId: int('question_id', { mode: 'number' }).references(
     () => question.id,
     {
       onDelete: 'cascade',
@@ -186,19 +247,19 @@ export const tagToQuestion = createTable('tag_to_question', {
   createdAt: text('created_at')
     .default(sql`(CURRENT_TIMESTAMP)`)
     .notNull(),
-  updatedAt: text('updatedAt'),
 })
 
 export const tagToQuestionRelations = relations(
   tagToQuestion,
   ({ one }) => ({
     tag: one(tag, {
-      fields: [tagToQuestion.tag],
+      fields: [tagToQuestion.tagId],
       references: [tag.id],
     }),
     question: one(question, {
-      fields: [tagToQuestion.question],
+      fields: [tagToQuestion.questionId],
       references: [question.id],
     }),
   }),
 )
+
