@@ -2,66 +2,16 @@
 import { Button } from '@/components/ui/button'
 
 import { api } from '@/trpc/react'
+import { testQuestions, testTopics, testTags } from '@/lib/store'
 
-const input = {
-  name: 'Test',
-  case: 'A new case 2',
-  question: 'A very long question 2',
-  type: 'AKT',
-  topics: [{ id: 2 }],
-  multipleChoiceOptions: [
-    'an option',
-    'another option',
-    'yet another option',
-    'and another one',
-  ],
-  tags: [{ id: 3 }, { id: 4 }],
-  images: [],
-  pdfs: [],
-}
-
-const topics = [
-  { name: 'Cardiology' },
-  { name: 'Neurology' },
-  { name: 'Oncology' },
-  { name: 'Pediatrics' },
-  { name: 'Orthopedics' },
-  { name: 'Dermatology' },
-  { name: 'Gastroenterology' },
-  { name: 'Psychiatry' },
-  { name: 'Radiology' },
-  { name: 'Endocrinology' },
-]
-
-const tags = [
-  { name: 'Heart Disease', topicId: 1 },
-  { name: 'Hypertension', topicId: 1 },
-  { name: 'Stroke', topicId: 2 },
-  { name: 'Epilepsy', topicId: 2 },
-  { name: 'Breast Cancer', topicId: 3 },
-  { name: 'Chemotherapy', topicId: 3 },
-  { name: 'Childhood Vaccination', topicId: 4 },
-  { name: 'Pediatric Asthma', topicId: 4 },
-  { name: 'Joint Replacement', topicId: 5 },
-  { name: 'Fracture Treatment', topicId: 5 },
-  { name: 'Acne', topicId: 6 },
-  { name: 'Psoriasis', topicId: 6 },
-  { name: 'Irritable Bowel Syndrome', topicId: 7 },
-  { name: 'Liver Disease', topicId: 7 },
-  { name: 'Depression', topicId: 8 },
-  { name: 'Anxiety Disorders', topicId: 8 },
-  { name: 'X-ray Imaging', topicId: 9 },
-  { name: 'MRI Scans', topicId: 9 },
-  { name: 'Diabetes Management', topicId: 10 },
-  { name: 'Thyroid Disorders', topicId: 10 },
-]
 const Page = () => {
   const ctx = api.useUtils()
-  const { mutate: createQuestion } = api.question.createQuestion.useMutation({
-    onSettled: () => {
-      void ctx.question.getAllQuestions.refetch()
-    },
-  })
+  const { mutate: createQuestions } =
+    api.question.createManyQuestions.useMutation({
+      onSettled: () => {
+        void ctx.question.getAllQuestions.refetch()
+      },
+    })
 
   const { mutate: createManyTopics } =
     api.question.createManyTopics.useMutation()
@@ -71,15 +21,15 @@ const Page = () => {
     api.question.getAllQuestions.useQuery()
 
   const handleCreateTopic = () => {
-    createManyTopics(topics)
+    createManyTopics(testTopics)
   }
 
   const handleCreateTag = () => {
-    createManyTags(tags)
+    createManyTags(testTags)
   }
 
-  const handleCreateQuestion = () => {
-    createQuestion(input)
+  const handleCreateQuestions = () => {
+    createQuestions(testQuestions)
   }
 
   if (isLoadingQuestions) return null
@@ -98,9 +48,9 @@ const Page = () => {
           </div>
         ))}
       </div>
-      <Button onClick={handleCreateQuestion}>Create Question</Button>
-      <Button onClick={handleCreateTopic}>Create Topic</Button>
-      <Button onClick={handleCreateTag}>Create Tag</Button>
+      <Button onClick={handleCreateQuestions}>Create Questions</Button>
+      <Button onClick={handleCreateTopic}>Create Topics</Button>
+      <Button onClick={handleCreateTag}>Create Tags</Button>
     </div>
   )
 }

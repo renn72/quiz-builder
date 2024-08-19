@@ -52,11 +52,11 @@ const createSchema = z.object({
   case: z.string(),
   question: z.string(),
   type: z.string(),
-  topics: z.array(topicSchema),
-  multipleChoiceOptions: z.array(z.string()),
-  tags: z.array(tagSchema),
-  images: z.array(imageSchema),
-  pdfs: z.array(pdfSchema),
+  topics: z.array(topicSchema).optional(),
+  multipleChoiceOptions: z.array(z.string()).optional(),
+  tags: z.array(tagSchema).optional(),
+  images: z.array(imageSchema).optional(),
+  pdfs: z.array(pdfSchema).optional(),
 })
 
 export const questionRouter = createTRPCRouter({
@@ -78,7 +78,7 @@ export const questionRouter = createTRPCRouter({
           case: input.case,
           question: input.question,
           type: input.type,
-          multipleChoiceOptions: input.multipleChoiceOptions.join('/'),
+          multipleChoiceOptions: input.multipleChoiceOptions?.join('/'),
           isTemplate: true,
           createdBy: user.id,
         })
@@ -92,54 +92,168 @@ export const questionRouter = createTRPCRouter({
         })
       }
 
-      const topicInputs = input.topics.map((topic) =>
+      const topicInputs = input.topics?.map((topic) =>
         ctx.db.insert(topicToQuestion).values({
           topicId: topic.id,
           questionId: questionId,
         }),
       )
 
-      if (isTuple(topicInputs)) {
+      if (topicInputs && isTuple(topicInputs)) {
         await ctx.db.batch(topicInputs)
       }
 
-      const tagInputs = input.tags.map((tag) =>
+      const tagInputs = input.tags?.map((tag) =>
         ctx.db.insert(tagToQuestion).values({
           tagId: tag.id,
           questionId: questionId,
         }),
       )
 
-      if (isTuple(tagInputs)) {
+      if (tagInputs && isTuple(tagInputs)) {
         await ctx.db.batch(tagInputs)
       }
 
-      const imageInputs = input.images.map((image) =>
+      const imageInputs = input.images?.map((image) =>
         ctx.db.insert(imagesToQuestion).values({
           imageId: image.id,
           questionId: questionId,
         }),
       )
 
-      if (isTuple(imageInputs)) {
+      if (imageInputs && isTuple(imageInputs)) {
         await ctx.db.batch(imageInputs)
       }
 
-      const pdfInputs = input.pdfs.map((pdf) =>
+      const pdfInputs = input.pdfs?.map((pdf) =>
         ctx.db.insert(pdfsToQuestion).values({
           pdfId: pdf.id,
           questionId: questionId,
         }),
       )
 
-      if (isTuple(pdfInputs)) {
+      if (pdfInputs && isTuple(pdfInputs)) {
         await ctx.db.batch(pdfInputs)
       }
 
       return res
     }),
+  createManyQuestions: publicProcedure
+    .input(z.array(createSchema))
+    .mutation(async ({ input: manyInput, ctx }) => {
+      const user = await getCurrentUser()
+      if (!user) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+          message: 'You must be logged in to create a question',
+        })
+      }
+
+      for (const input of manyInput) {
+        console.log('start')
+        const res = await ctx.db
+          .insert(question)
+          .values({
+            name: input.name,
+            case: input.case,
+            question: input.question,
+            type: input.type,
+            multipleChoiceOptions: input.multipleChoiceOptions?.join('/'),
+            isTemplate: true,
+            createdBy: user.id,
+          })
+          .returning({ id: question.id })
+
+        console.log('questionId check')
+        const questionId = res[0]?.id
+        if (!questionId) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to create question',
+          })
+        }
+
+        console.log('topic check')
+        const topicInputs = input.topics?.map((topic) =>
+          ctx.db.insert(topicToQuestion).values({
+            topicId: topic.id,
+            questionId: questionId,
+          }),
+        )
+
+        if (topicInputs && isTuple(topicInputs)) {
+          await ctx.db.batch(topicInputs)
+        }
+
+        console.log('tag check')
+        const tagInputs = input.tags?.map((tag) =>
+          ctx.db.insert(tagToQuestion).values({
+            tagId: tag.id,
+            questionId: questionId,
+          }),
+        )
+
+        if (tagInputs && isTuple(tagInputs)) {
+          await ctx.db.batch(tagInputs)
+        }
+
+        console.log('image check')
+        const imageInputs = input.images?.map((image) =>
+          ctx.db.insert(imagesToQuestion).values({
+            imageId: image.id,
+            questionId: questionId,
+          }),
+        )
+
+        if (imageInputs && isTuple(imageInputs)) {
+          await ctx.db.batch(imageInputs)
+        }
+
+        console.log('pdf check')
+        const pdfInputs = input.pdfs?.map((pdf) =>
+          ctx.db.insert(pdfsToQuestion).values({
+            pdfId: pdf.id,
+            questionId: questionId,
+          }),
+        )
+
+        if (pdfInputs && isTuple(pdfInputs)) {
+          await ctx.db.batch(pdfInputs)
+        }
+      }
+
+      return true
+    }),
   getAllQuestions: publicProcedure.query(async ({ ctx }) => {
     const res = await ctx.db.query.question.findMany({
+      with: {
+        topics: {
+          with: {
+            topic: true,
+          },
+        },
+        tags: {
+          with: {
+            tag: true,
+          },
+        },
+        images: {
+          with: {
+            image: true,
+          },
+        },
+        pdfs: {
+          with: {
+            pdf: true,
+          },
+        },
+      },
+    })
+    return res
+  }),
+  get: publicProcedure.input(z.number()).query(async ({ input, ctx }) => {
+    const res = await ctx.db.query.question.findFirst({
+      where: (question, {eq}) => eq(question.id, input),
       with: {
         topics: {
           with: {
