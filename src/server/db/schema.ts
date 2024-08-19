@@ -64,14 +64,39 @@ export const question = createTable('question', {
   ),
   case: text('case'),
   question: text('question'),
+  answer: text('answer'),
   multipleChoiceOptions: text('multiple_choice_options'),
   type: text('type'),
-  answer: text('answer'),
+  state: text('state'),
   isTemplate: int('is_template', { mode: 'boolean' }),
   createdBy: int('created_by'),
 })
 
+export const answer = createTable('answer', {
+  id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  questionId: int('question_id', { mode: 'number' }).references(
+    () => question.id,
+  ),
+  answer: text('answer'),
+  case: text('case'),
+  question: text('question'),
+  multipleChoiceOptions: text('multiple_choice_options'),
+  type: text('type'),
+  state: text('state'),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
+})
+
+export const answerRelations = relations(answer, ({ one }) => ({
+  question: one(question, {
+    fields: [answer.questionId],
+    references: [question.id],
+  }),
+}))
+
 export const questionRelations = relations(question, ({ many }) => ({
+  answers: many(answer),
   topics: many(topicToQuestion),
   tags: many(tagToQuestion),
   images: many(imagesToQuestion),
@@ -89,12 +114,9 @@ export const imagesRelations = relations(images, ({ many }) => ({
 
 export const imagesToQuestion = createTable('images_to_question', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  imageId: int('image_id', { mode: 'number' }).references(
-    () => images.id,
-    {
-      onDelete: 'cascade',
-    },
-  ),
+  imageId: int('image_id', { mode: 'number' }).references(() => images.id, {
+    onDelete: 'cascade',
+  }),
   questionId: int('question_id', { mode: 'number' }).references(
     () => question.id,
     {
@@ -137,12 +159,9 @@ export const pdfsRelations = relations(pdfs, ({ many }) => ({
 
 export const pdfsToQuestion = createTable('pdfs_to_question', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  pdfId: int('pdf_id', { mode: 'number' }).references(
-    () => pdfs.id,
-    {
-      onDelete: 'cascade',
-    },
-  ),
+  pdfId: int('pdf_id', { mode: 'number' }).references(() => pdfs.id, {
+    onDelete: 'cascade',
+  }),
   questionId: int('question_id', { mode: 'number' }).references(
     () => question.id,
     {
@@ -154,19 +173,16 @@ export const pdfsToQuestion = createTable('pdfs_to_question', {
     .notNull(),
 })
 
-export const pdfsToQuestionRelations = relations(
-  pdfsToQuestion,
-  ({ one }) => ({
-    pdf: one(pdfs, {
-      fields: [pdfsToQuestion.pdfId],
-      references: [pdfs.id],
-    }),
-    question: one(question, {
-      fields: [pdfsToQuestion.questionId],
-      references: [question.id],
-    }),
+export const pdfsToQuestionRelations = relations(pdfsToQuestion, ({ one }) => ({
+  pdf: one(pdfs, {
+    fields: [pdfsToQuestion.pdfId],
+    references: [pdfs.id],
   }),
-)
+  question: one(question, {
+    fields: [pdfsToQuestion.questionId],
+    references: [question.id],
+  }),
+}))
 
 export const topic = createTable('topic', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
@@ -249,17 +265,13 @@ export const tagToQuestion = createTable('tag_to_question', {
     .notNull(),
 })
 
-export const tagToQuestionRelations = relations(
-  tagToQuestion,
-  ({ one }) => ({
-    tag: one(tag, {
-      fields: [tagToQuestion.tagId],
-      references: [tag.id],
-    }),
-    question: one(question, {
-      fields: [tagToQuestion.questionId],
-      references: [question.id],
-    }),
+export const tagToQuestionRelations = relations(tagToQuestion, ({ one }) => ({
+  tag: one(tag, {
+    fields: [tagToQuestion.tagId],
+    references: [tag.id],
   }),
-)
-
+  question: one(question, {
+    fields: [tagToQuestion.questionId],
+    references: [question.id],
+  }),
+}))

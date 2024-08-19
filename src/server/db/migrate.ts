@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/libsql'
 import { createClient } from '@libsql/client'
 
 async function main() {
-  const db = drizzle(createClient({ url: 'libsql://power-leader-renn.turso.io', authToken: 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTY2MTg1NjUsImlkIjoiZTMyNTc1MWItYjZjZS00ZjI4LWFlMGUtZGVkMGU3ODc4ODdmIn0.6MbjcNozeaIbgvqRmem8DswA66Y0EcAqhrqQsinIrgFCMJWBT6m_5P3Kd6LpltMdNg5_JvpeC6a8I_cQFEM5Aw' }))
+  const db = drizzle(createClient({ url: 'libsql://quiz-builder-renn.turso.io', authToken: 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MjQwMzMxMjksImlkIjoiZWIwMjg2MWYtNDlhNy00YjRhLWIyNzgtZTNmNDM5MzcyM2Q1In0.LuKT92YwQdLw2Ok8Z2nigit4vBm6Yzq07Z_q0QywosbMMq_wC-8AJwf8x68vZWJFQUeb1PaBssAQlNv_p_YbAQ' }))
 
   console.log('Running migrations')
 
