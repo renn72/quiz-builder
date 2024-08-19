@@ -51,8 +51,8 @@ export const columns: ColumnDef<GetQuestion>[] = [
       />
     ),
     cell: ({ row }) => <div className='w-min'>{row.getValue('id')}</div>,
-    enableSorting: false,
-    enableHiding: false,
+    // enableSorting: false,
+    // enableHiding: false,
   },
   {
     accessorKey: 'name',

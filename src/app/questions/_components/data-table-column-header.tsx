@@ -5,6 +5,7 @@ import {
   EyeNoneIcon,
 } from '@radix-ui/react-icons'
 import { Column } from '@tanstack/react-table'
+import { Input } from '@/components/ui/input'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -63,6 +64,23 @@ export function DataTableColumnHeader<TData, TValue>({
           <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
             <EyeNoneIcon className='mr-2 h-3.5 w-3.5 text-muted-foreground/70' />
             Hide
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Input
+              autoFocus
+              placeholder='search'
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+              }}
+              value={(column.getFilterValue() as string) ?? ''}
+              onChange={(event) => {
+                console.log(column)
+                column.setFilterValue(event.target.value)
+              }}
+              className='h-8 w-[150px] lg:w-[250px]'
+            />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
