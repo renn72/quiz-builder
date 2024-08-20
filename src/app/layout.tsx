@@ -11,6 +11,12 @@ import { type Metadata } from 'next'
 import { TRPCReactProvider } from '@/trpc/react'
 import Navbar from './_components/navbar'
 
+import { polyfillPromiseWithResolvers } from '@/utils/polyfilsResolver'
+
+import 'core-js/full/promise/with-resolvers.js'
+
+polyfillPromiseWithResolvers()
+
 export const metadata: Metadata = {
   title: 'Quiz',
   description: 'Quiz App',
@@ -33,10 +39,10 @@ export default function RootLayout({
               defaultTheme='light'
               disableTransitionOnChange
             >
-            <Navbar />
-            {children}
+              <Navbar />
+              {children}
             </ThemeProvider>
-            </TRPCReactProvider>
+          </TRPCReactProvider>
         </body>
       </html>
     </ClerkProvider>

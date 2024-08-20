@@ -12,11 +12,7 @@ const coreConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config) => {
-    config.resolve.alias.canvas = false
-
-    return config
-  },
+  swcMinify: false,
 }
 
 // Injected content via Sentry wizard below
