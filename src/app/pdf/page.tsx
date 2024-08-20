@@ -32,6 +32,7 @@ export const dynamic = 'force-dynamic'
 const Page = () => {
   return (
     <div className='disable-select'>
+      <h1>some text to test select</h1>
       <PdfViewer file={'CV-20.pdf'} />
     </div>
   )
