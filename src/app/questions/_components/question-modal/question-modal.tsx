@@ -8,31 +8,35 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { CirclePlus } from 'lucide-react'
 
 import { QuestionForm } from './question-form'
 
 export const QuestionModal = () => {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
+    <Sheet
+    >
+      <SheetTrigger asChild>
         <CirclePlus size={28} strokeWidth={2} className='mx-4 text-primary/70 hover:text-primary hover:scale-110' />
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create Question</DialogTitle>
-          <DialogDescription>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem
-            aspernatur, doloremque, voluptate, quisquam, consequuntur, ipsam
-            voluptatibus, voluptas, quis, dolorem, facere, asperiores
-            exercitationem.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogContent>
+      </SheetTrigger>
+      <SheetContent
+        className='w-[600px] sm:max-w-2xl'
+      >
+        <SheetHeader>
+          <SheetTitle>Create Question</SheetTitle>
+        </SheetHeader>
           <QuestionForm />
-        </DialogContent>
-      </DialogContent>
-    </Dialog>
+        <SheetDescription>
+        </SheetDescription>
+      </SheetContent>
+    </Sheet>
   )
 }
-

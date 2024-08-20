@@ -40,7 +40,6 @@ const Page = () => {
   }
 
   if (isLoadingQuestions) return null
-  console.log(questions)
   return (
     <div className='flex flex-col items-center justify-center gap-4 mb-20 px-4 py-16'>
       <h1 className='text-3xl font-bold'>Questions</h1>
