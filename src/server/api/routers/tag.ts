@@ -35,11 +35,13 @@ export const tagRouter = createTRPCRouter({
       return res
     }),
   getAll: publicProcedure.query(async ({ ctx }) => {
-    const res = await ctx.db.query.topic.findMany({})
+    const res = await ctx.db.query.tag.findMany({
+      orderBy: (tag, { asc }) => [asc(tag.name)],
+    })
     return res
   }),
   get: publicProcedure.input(z.number()).query(async ({ input, ctx }) => {
-    const res = await ctx.db.query.topic.findFirst({
+    const res = await ctx.db.query.tag.findFirst({
       where: (topic, { eq }) => eq(topic.id, input),
     })
     return res

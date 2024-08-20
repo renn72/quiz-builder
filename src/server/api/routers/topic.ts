@@ -37,6 +37,7 @@ export const topicRouter = createTRPCRouter({
     }),
   getAll: publicProcedure.query(async ({ ctx }) => {
     const res = await ctx.db.query.topic.findMany({
+      orderBy: (topic, { asc }) => [asc(topic.name)],
       with: {
         tags: true,
       },

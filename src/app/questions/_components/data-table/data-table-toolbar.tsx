@@ -10,6 +10,8 @@ import { DataTableViewOptions } from './data-table-view-options'
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
 import { QuestionModal } from '../question-modal/question-modal'
 
+import { api } from '@/trpc/react'
+
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
 }
@@ -18,6 +20,14 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+
+  const { data: topics, isLoading: isLoadingTopics } =
+    api.topic.getAll.useQuery()
+
+  const { data: tags, isLoading: isLoadingTags } =
+    api.tag.getAll.useQuery()
+
+  if (isLoadingTopics || isLoadingTags) return null
 
   return (
     <div className='flex items-center justify-between'>
@@ -34,14 +44,14 @@ export function DataTableToolbar<TData>({
           <DataTableFacetedFilter
             column={table.getColumn('topics')}
             title='Topics'
-            options={['Cardiology', 'Neurology', 'Oncology']}
+            options={topics?.map((topic) => topic.name ?? '')}
           />
         )}
         {table.getColumn('tags') && (
           <DataTableFacetedFilter
             column={table.getColumn('tags')}
             title='Tags'
-            options={['Liver Disease', 'Acne', 'Epilepsy']}
+            options={tags?.map((tag) => tag.name ?? '')}
           />
         )}
         {isFiltered && (

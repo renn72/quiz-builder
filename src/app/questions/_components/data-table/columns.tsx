@@ -11,8 +11,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 
-import { labels, priorities, statuses } from './data'
-// import { Task } from '../data/schema'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 import { GetQuestion } from '@/lib/types'
@@ -166,8 +164,20 @@ export const columns: ColumnDef<GetQuestion>[] = [
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+    filterFn: (row, id, values) => {
+      // @ts-ignore
+      const topics =row.getValue(id)?.map((topic) => topic.topic?.name)
+      if (!topics) return false
+      let result = false
+      for (const value of values) {
+        if (topics.includes(value)) {
+          result = true
+        } else {
+          result = false
+          break
+        }
+      }
+      return result
     },
   },
   {
@@ -189,8 +199,20 @@ export const columns: ColumnDef<GetQuestion>[] = [
         </div>
       )
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+    filterFn: (row, id, values) => {
+      // @ts-ignore
+      const tags =row.getValue(id)?.map((tag) => tag.tag?.name)
+      if (!tags) return false
+      let result = false
+      for (const value of values) {
+        if (tags.includes(value)) {
+          result = true
+        } else {
+          result = false
+          break
+        }
+      }
+      return result
     },
   },
   {

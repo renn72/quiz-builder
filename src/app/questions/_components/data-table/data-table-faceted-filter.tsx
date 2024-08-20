@@ -24,7 +24,7 @@ import { Separator } from '@/components/ui/separator'
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>
   title?: string
-  options: string[]
+  options: string[] | undefined | null
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
@@ -34,6 +34,8 @@ export function DataTableFacetedFilter<TData, TValue>({
 }: DataTableFacetedFilterProps<TData, TValue>) {
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = new Set(column?.getFilterValue() as string[])
+
+  if (!options) return null
 
   return (
     <Popover>
