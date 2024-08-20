@@ -22,10 +22,7 @@ const resizeObserverOptions = {}
 
 const maxWidth = 800
 
-type PDFFile = string | File | null
-
 export default function Sample() {
-  const [file, setFile] = useState<PDFFile>('./sample.pdf')
   const [numPages, setNumPages] = useState<number>()
   const [containerRef, setContainerRef] = useState<HTMLElement | null>(null)
   const [containerWidth, setContainerWidth] = useState<number>()
@@ -39,16 +36,6 @@ export default function Sample() {
   }, [])
 
   useResizeObserver(containerRef, resizeObserverOptions, onResize)
-
-  function onFileChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    const { files } = event.target
-
-    const nextFile = files?.[0]
-
-    if (nextFile) {
-      setFile(nextFile)
-    }
-  }
 
   function onDocumentLoadSuccess({
     numPages: nextNumPages,

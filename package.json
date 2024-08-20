@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "copy-assets": "cp ./node_modules/pdfjs-dist/build/pdf.worker.min.mjs ./public/",
     "build": "next build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
