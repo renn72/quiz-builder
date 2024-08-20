@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTableViewOptions } from './data-table-view-options'
 
-// import { priorities, statuses } from "../data/data"
 import { DataTableFacetedFilter } from './data-table-faceted-filter'
+import { QuestionModal } from '../question-modal/question-modal'
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -37,6 +37,13 @@ export function DataTableToolbar<TData>({
             options={['Cardiology', 'Neurology', 'Oncology']}
           />
         )}
+        {table.getColumn('tags') && (
+          <DataTableFacetedFilter
+            column={table.getColumn('tags')}
+            title='Tags'
+            options={['Liver Disease', 'Acne', 'Epilepsy']}
+          />
+        )}
         {isFiltered && (
           <Button
             variant='ghost'
@@ -49,14 +56,7 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
+      <QuestionModal />
     </div>
   )
 }
-
-// {table.getColumn("priority") && (
-//   <DataTableFacetedFilter
-//     column={table.getColumn("priority")}
-//     title="Priority"
-//     options={priorities}
-//   />
-// )}

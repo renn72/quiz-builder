@@ -1,5 +1,7 @@
 import { userRouter } from '@/server/api/routers/user'
 import { questionRouter } from '@/server/api/routers/question'
+import { topicRouter } from '@/server/api/routers/topic'
+import { tagRouter } from '@/server/api/routers/tag'
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
 
 /**
@@ -10,6 +12,8 @@ import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
 export const appRouter = createTRPCRouter({
   user: userRouter,
   question: questionRouter,
+  topic: topicRouter,
+  tag: tagRouter,
 })
 
 // export type definition of API

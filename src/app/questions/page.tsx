@@ -3,7 +3,9 @@ import { Button } from '@/components/ui/button'
 
 import { api } from '@/trpc/react'
 import { testQuestions, testTopics, testTags } from '@/lib/store'
-import DataTable from './_components/data-table'
+import DataTable from './_components/data-table/data-table'
+
+export const dynamic = 'force-dynamic'
 
 const Page = () => {
   const ctx = api.useUtils()
@@ -40,8 +42,8 @@ const Page = () => {
   if (isLoadingQuestions) return null
   console.log(questions)
   return (
-    <div className='flex flex-col items-center justify-center gap-4 mb-20'>
-      <h1>Questions</h1>
+    <div className='flex flex-col items-center justify-center gap-4 mb-20 px-4 py-16'>
+      <h1 className='text-3xl font-bold'>Questions</h1>
       <div className='flex flex-col gap-4'>
         {questions ? <DataTable questions={questions} /> : null}
       </div>
