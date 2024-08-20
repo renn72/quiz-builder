@@ -31,7 +31,7 @@ export const dynamic = 'force-dynamic'
 
 const Page = () => {
   return (
-    <div>
+    <div className='disable-select'>
       <PdfViewer file={'CV-20.pdf'} />
     </div>
   )

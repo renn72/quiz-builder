@@ -14,6 +14,11 @@ export const dynamic = 'force-dynamic'
 
 const PdfViewer = ({ file }: { file: string }): React.ReactElement => {
 
+  useEffect(() => {
+    // add event listener to disable context menu
+    document.addEventListener('contextmenu', (e) => e.preventDefault())
+  }, [])
+
   return (
     <div className='flex flex-col items-center justify-center gap-12 px-4 py-16'>
       <Document
