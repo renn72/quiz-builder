@@ -9,18 +9,10 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/legacy/build/pdf.worker.min.mjs`;
 
-type Props = {
-  buffer: { data: Buffer }
-}
 
 export const dynamic = 'force-dynamic'
 
 const PdfViewer = ({ file }: { file: string }): React.ReactElement => {
-  // const memoizedFile = useMemo(() => buffer.data, [buffer.data]) // Depend on buffer.data assuming buffer.data is stable and only changes if actual data changes
-
-  // Memoize the file object to prevent unnecessary re-renders
-  // const fileProp = useMemo(() => ({ data: memoizedFile }), [memoizedFile])
-
   useEffect(() => {
     document.addEventListener('contextmenu', (e) => {
       e.preventDefault()
@@ -30,7 +22,7 @@ const PdfViewer = ({ file }: { file: string }): React.ReactElement => {
   return (
     <div className='flex flex-col items-center justify-center gap-12 px-4 py-16'>
       <Document
-        file={'CV-20.pdf'}
+        file={'basic-link-1.pdf'}
         onLoadError={(err) =>
           console.error(`Loading error from PDF viewer: ${err}`)
         }
