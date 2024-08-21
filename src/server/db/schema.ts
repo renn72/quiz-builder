@@ -105,6 +105,9 @@ export const questionRelations = relations(question, ({ many }) => ({
 
 export const images = createTable('images', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
   url: text('url'),
 })
 
