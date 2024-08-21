@@ -22,7 +22,7 @@ export const QuestionModal = () => {
           className='mx-4 text-primary/70 hover:scale-110 hover:text-primary'
         />
       </DialogTrigger>
-      <DialogContent className='w-[600px] sm:max-w-2xl'>
+      <DialogContent className='w-max min-w-[800px] sm:max-w-full'>
         <DialogHeader>
           <DialogTitle>Create Question</DialogTitle>
         </DialogHeader>
