@@ -1,7 +1,9 @@
 'use client'
+import { useState } from 'react'
+import { cn } from '@/lib/utils'
 import { api } from '@/trpc/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { SelectBox } from '@/components/ui/select-box'
 import {
@@ -21,8 +23,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+
+import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+
+import { UploadButton } from '@/app/_components/upload-button'
+import { PlusIcon, XIcon } from 'lucide-react'
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -31,14 +38,16 @@ const formSchema = z.object({
   case: z.string(),
   question: z.string(),
   type: z.string(),
-  multipleChoiceOptions: z.array(z.string()).optional(),
+  multipleChoiceOptions: z.array(z.object({ value: z.string() })),
   topics: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  pdfs: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
+  pdf: z.string().optional(),
+  image: z.string().optional(),
 })
 
 export const QuestionForm = () => {
+  const [image, setImage] = useState<string | null>(null)
+  const [pdf, setPdf] = useState<string | null>(null)
   const { data: topics, isLoading: isLoadingTopics } =
     api.topic.getAll.useQuery()
   const { data: tagsQuery, isLoading: isLoadingTags } =
@@ -50,12 +59,18 @@ export const QuestionForm = () => {
       case: '',
       question: '',
       type: 'AKT',
-      multipleChoiceOptions: [],
+      multipleChoiceOptions: [{ value: '' }],
     },
   })
 
   const formTopics = form.watch('topics')
-
+  const formType = form.watch('type')
+  const multiFieldArray = useFieldArray({
+    control: form.control,
+    name: 'multipleChoiceOptions',
+  })
+  const multi = form.watch('multipleChoiceOptions')
+  console.log('multi', multi)
 
   const tags = tagsQuery
     ?.filter((tag) => formTopics?.includes(tag.topicId?.toString() || ''))
@@ -64,7 +79,6 @@ export const QuestionForm = () => {
       label: tag.name || '',
     }))
 
-  console.log(topics, tagsQuery, formTopics, tags)
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
@@ -150,6 +164,39 @@ export const QuestionForm = () => {
             </FormItem>
           )}
         />
+          <div className={cn('flex flex-col gap-2', formType === 'AKT' ? '' : 'hidden')}>
+            <h2 className='text-sm'>Multiple Choice Options</h2>
+            {multiFieldArray.fields.map((field, index) => (
+              <FormField
+                key={index}
+                control={form.control}
+                name={`multipleChoiceOptions.${index}.value`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                    <div className='flex items-center gap-4'>
+                      <h3 className='text-sm text-muted-foreground font-medium'>{index + 1}</h3>
+                      <Input
+                        placeholder='option'
+                        {...field}
+                      />
+                      <XIcon
+                        className='h-4 w-4 text-primary/70 hover:scale-110 hover:text-primary'
+                      onClick={() => multiFieldArray.remove(index)} />
+                    </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ))}
+            <div className='w-full flex justify-center'>
+              <PlusIcon
+                onClick={() => multiFieldArray.append({ value: '' })}
+                className='h-6 w-6 text-primary/70 hover:scale-110 hover:text-primary'
+              />
+            </div>
+          </div>
         {topics && topics.length > 0 && (
           <FormField
             control={form.control}
@@ -200,6 +247,84 @@ export const QuestionForm = () => {
             )}
           />
         )}
+        <FormField
+          control={form.control}
+          name='image'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image</FormLabel>
+              <FormControl>
+                <div className='flex items-center gap-8'>
+                  {image ? (
+                    <span className='h-10 w-full flex-grow rounded-md border border-gray-700 p-2'>
+                      {image}
+                    </span>
+                  ) : (
+                    <>
+                      <span className='h-10 w-full flex-grow rounded-md border border-gray-700 p-2'>
+                        {image}
+                      </span>
+                      <UploadButton
+                        endpoint='imageUploader'
+                        onClientUploadComplete={(res) => {
+                          // Do something with the response
+                          const r = res[0]
+                          console.log('Files: ', res)
+                          console.log(r)
+                          if (!r) return
+                          setImage(r.name)
+                          form.setValue('image', r.serverData.id)
+                        }}
+                        onUploadError={(error: Error) => {
+                          toast.error(`ERROR! ${error.message}`)
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name='pdf'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>PDF</FormLabel>
+              <FormControl>
+                <div className='flex items-center gap-8'>
+                  {pdf ? (
+                    <span className='h-10 w-full flex-grow rounded-md border border-gray-700 p-2'>
+                      {pdf}
+                    </span>
+                  ) : (
+                    <>
+                      <span className='h-10 w-full flex-grow rounded-md border border-gray-700 p-2'>
+                        {pdf}
+                      </span>
+                      <UploadButton
+                        endpoint='pdfUploader'
+                        onClientUploadComplete={(res) => {
+                          // Do something with the response
+                          const r = res[0]
+                          console.log('Files: ', res)
+                          console.log(r)
+                          if (!r) return
+                          setPdf(r.name)
+                          form.setValue('pdf', r.serverData.id)
+                        }}
+                        onUploadError={(error: Error) => {
+                          toast.error(`ERROR! ${error.message}`)
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <Button type='submit'>Submit</Button>
       </form>
     </Form>
