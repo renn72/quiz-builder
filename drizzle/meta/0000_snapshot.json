@@ -1,9 +1,96 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "45f6ed2e-aa3f-436c-8d23-0e7d88032ccc",
+  "id": "be33d33b-2f9d-4dd7-8cb0-ba0720cc40fe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "qb_answer": {
+      "name": "qb_answer",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "answer": {
+          "name": "answer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "case": {
+          "name": "case",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "question": {
+          "name": "question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "multiple_choice_options": {
+          "name": "multiple_choice_options",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "qb_answer_question_id_qb_question_id_fk": {
+          "name": "qb_answer_question_id_qb_question_id_fk",
+          "tableFrom": "qb_answer",
+          "tableTo": "qb_question",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "qb_images": {
       "name": "qb_images",
       "columns": {
@@ -13,6 +100,14 @@
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
         },
         "url": {
           "name": "url",
@@ -109,30 +204,17 @@
           "notNull": false,
           "autoincrement": false
         },
-        "question_id": {
-          "name": "question_id",
-          "type": "integer",
+        "created_at": {
+          "name": "created_at",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(CURRENT_TIMESTAMP)"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "qb_pdfs_question_id_qb_question_id_fk": {
-          "name": "qb_pdfs_question_id_qb_question_id_fk",
-          "tableFrom": "qb_pdfs",
-          "tableTo": "qb_question",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },

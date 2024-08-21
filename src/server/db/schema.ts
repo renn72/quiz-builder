@@ -148,12 +148,9 @@ export const imagesToQuestionRelations = relations(
 export const pdfs = createTable('pdfs', {
   id: int('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   url: text('url'),
-  questionId: int('question_id', { mode: 'number' }).references(
-    () => question.id,
-    {
-      onDelete: 'cascade',
-    },
-  ),
+  createdAt: text('created_at')
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .notNull(),
 })
 
 export const pdfsRelations = relations(pdfs, ({ many }) => ({

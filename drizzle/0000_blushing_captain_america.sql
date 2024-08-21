@@ -1,5 +1,19 @@
+CREATE TABLE `qb_answer` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`question_id` integer,
+	`answer` text,
+	`case` text,
+	`question` text,
+	`multiple_choice_options` text,
+	`type` text,
+	`state` text,
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	FOREIGN KEY (`question_id`) REFERENCES `qb_question`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `qb_images` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`url` text
 );
 --> statement-breakpoint
@@ -15,8 +29,7 @@ CREATE TABLE `qb_images_to_question` (
 CREATE TABLE `qb_pdfs` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`url` text,
-	`question_id` integer,
-	FOREIGN KEY (`question_id`) REFERENCES `qb_question`(`id`) ON UPDATE no action ON DELETE cascade
+	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `qb_pdfs_to_question` (

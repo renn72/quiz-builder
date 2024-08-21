@@ -46,7 +46,7 @@ const Page = () => {
       <div className='flex flex-col gap-4'>
         {questions ? <DataTable questions={questions} /> : null}
       </div>
-      <div className='flex hidden gap-4'>
+      <div className='flex gap-4 hidden'>
         <Button onClick={handleCreateQuestions}>Create Questions</Button>
         <Button onClick={handleCreateTopic}>Create Topics</Button>
         <Button onClick={handleCreateTag}>Create Tags</Button>
