@@ -23,13 +23,12 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
-import { UploadButton } from '@/app/_components/upload-button'
-import { PlusIcon, XIcon } from 'lucide-react'
+import { UploadButton, UploadSVG } from '@/app/_components/upload-button'
+import { Loader, PlusIcon, XIcon } from 'lucide-react'
 
 import { QuestionPreview } from './question-preview'
 
@@ -41,19 +40,42 @@ const formSchema = z.object({
   question: z.string(),
   type: z.string(),
   multipleChoiceOptions: z.array(z.object({ value: z.string() })),
+  numberOfAnswers: z.number().optional(),
   topics: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   pdf: z.string().optional(),
   image: z.string().optional(),
 })
 
-export const QuestionForm = () => {
+const QuestionForm = ({
+  setIsOpen,
+}: {
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
+  const [isSubmitImage, setIsSubmitImage] = useState(false)
+  const [isSubmitPdf, setIsSubmitPdf] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const [image, setImage] = useState<string | null>(null)
   const [pdf, setPdf] = useState<string | null>(null)
+  const ctx = api.useUtils()
   const { data: topics, isLoading: isLoadingTopics } =
     api.topic.getAll.useQuery()
   const { data: tagsQuery, isLoading: isLoadingTags } =
     api.tag.getAll.useQuery()
+  const { mutate: createQuestion } = api.question.createQuestion.useMutation({
+    onMutate: () => {
+      setIsSending(true)
+    },
+    onSuccess: () => {
+      ctx.question.getAllQuestions.refetch()
+      setIsSending(false)
+      setIsOpen(false)
+      toast.success('Question created successfully')
+    },
+    onError: (error) => {
+      toast.error('error')
+    },
+  })
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -79,7 +101,6 @@ export const QuestionForm = () => {
     control: form.control,
     name: 'multipleChoiceOptions',
   })
-  console.log('multi', multi)
 
   const tags = tagsQuery
     ?.filter((tag) => formTopics?.includes(tag.topicId?.toString() || ''))
@@ -93,11 +114,24 @@ export const QuestionForm = () => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+    createQuestion({
+      ...values,
+      topics: values.topics?.map((i) => {
+        return { id: Number(i) }
+      }),
+      tags: values.tags?.map((i) => {
+        return { id: Number(i) }
+      }),
+      multipleChoiceOptions: values.multipleChoiceOptions?.map((i) => i.value),
+    })
   }
+
+  console.log('state', isSubmitImage)
+
 
   if (isLoadingTopics || isLoadingTags) return null
   return (
-    <div className='grid grid-cols-2 gap-4'>
+    <div className='grid grid-cols-1 gap-4'>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -215,6 +249,25 @@ export const QuestionForm = () => {
               />
             </div>
           </div>
+          <div className={cn(formType === 'KFP' ? '' : 'hidden')}>
+            <FormField
+              control={form.control}
+              name='numberOfAnswers'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number of Answers</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='number of answers'
+                      type='number'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {topics && topics.length > 0 && (
             <FormField
               control={form.control}
@@ -284,6 +337,7 @@ export const QuestionForm = () => {
                         </span>
                         <UploadButton
                           endpoint='imageUploader'
+                          setIsSubmit={setIsSubmitImage}
                           onClientUploadComplete={(res) => {
                             // Do something with the response
                             const r = res[0]
@@ -291,6 +345,7 @@ export const QuestionForm = () => {
                             console.log(r)
                             if (!r) return
                             setImage(r.name)
+                            setIsSubmitImage(false)
                             form.setValue('image', r.serverData.id)
                           }}
                           onUploadError={(error: Error) => {
@@ -321,21 +376,29 @@ export const QuestionForm = () => {
                         <span className='h-10 w-full flex-grow rounded-md border border-gray-700 p-2'>
                           {pdf}
                         </span>
-                        <UploadButton
-                          endpoint='pdfUploader'
-                          onClientUploadComplete={(res) => {
-                            // Do something with the response
-                            const r = res[0]
-                            console.log('Files: ', res)
-                            console.log(r)
-                            if (!r) return
-                            setPdf(r.name)
-                            form.setValue('pdf', r.serverData.id)
-                          }}
-                          onUploadError={(error: Error) => {
-                            toast.error(`ERROR! ${error.message}`)
-                          }}
-                        />
+                        {isSubmitImage ? (
+                          <div className='text-muted mx-4'>
+                            <UploadSVG />
+                          </div>
+                        ) : (
+                          <UploadButton
+                            endpoint='pdfUploader'
+                            setIsSubmit={setIsSubmitPdf}
+                            onClientUploadComplete={(res) => {
+                              // Do something with the response
+                              const r = res[0]
+                              console.log('Files: ', res)
+                              console.log(r)
+                              if (!r) return
+                              setPdf(r.name)
+                              setIsSubmitPdf(false)
+                              form.setValue('pdf', r.serverData.id)
+                            }}
+                            onUploadError={(error: Error) => {
+                              toast.error(`ERROR! ${error.message}`)
+                            }}
+                          />
+                        )}
                       </>
                     )}
                   </div>
@@ -343,20 +406,29 @@ export const QuestionForm = () => {
               </FormItem>
             )}
           />
-          <Button type='submit'>Submit</Button>
+          <Button
+            disabled={isSending}
+            type='submit'
+            className='w-36'
+          >
+            {isSending ? <Loader className='animate-spin' /> : 'Submit'}
+          </Button>
         </form>
       </Form>
-      <QuestionPreview
-        name={formName}
-        caseInput={formCase}
-        question={formQuestion}
-        type={formType}
-        multipleChoiceOptions={multi}
-        topics={formTopics || []}
-        tags={formTags || []}
-        pdf={formPdf || ''}
-        image={formImage || ''}
-      />
     </div>
   )
 }
+
+// <QuestionPreview
+//   name={formName}
+//   caseInput={formCase}
+//   question={formQuestion}
+//   type={formType}
+//   multipleChoiceOptions={multi}
+//   topics={formTopics || []}
+//   tags={formTags || []}
+//   pdf={formPdf || ''}
+//   image={formImage || ''}
+// />
+
+export { QuestionForm }

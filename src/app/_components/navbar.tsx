@@ -36,18 +36,40 @@ const Navbar = () => {
               passHref
             >
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              Questions
+                Questions Admin
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link
-              href='/pdf'
+              href='/quiz-admin'
               legacyBehavior
               passHref
             >
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-              PDF
+                Quiz Admin
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href='/user-admin'
+              legacyBehavior
+              passHref
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                User Admin
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link
+              href='/user-quiz-admin'
+              legacyBehavior
+              passHref
+            >
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                User Quiz Admin
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

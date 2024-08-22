@@ -2,7 +2,6 @@
 import { useUploadThing } from '@/utils/uploadthing'
 import { toast } from 'sonner'
 
-
 // inferred input off useUploadThing
 type Input = Parameters<typeof useUploadThing>
 
@@ -23,13 +22,13 @@ const useUploadThingInputProps = (...args: Input) => {
     inputProps: {
       onChange,
       multiple: ($ut.permittedFileInfo?.config?.image?.maxFileCount ?? 1) > 1,
-      accept: 'image/*',
+      accept: '',
     },
     isUploading: $ut.isUploading,
   }
 }
 
-function UploadSVG() {
+export function UploadSVG() {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -73,22 +72,17 @@ const UploadButton = ({
   endpoint,
   onClientUploadComplete,
   onUploadError,
+  setIsSubmit,
 }: {
   endpoint: 'imageUploader' | 'pdfUploader'
   onClientUploadComplete: (res: any) => void
   onUploadError: (error: Error) => void
-})  => {
+  setIsSubmit: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
   const { inputProps, isUploading } = useUploadThingInputProps(endpoint, {
-    onUploadBegin() {
-      toast(
-        <div className='flex items-center gap-2 text-white'>
-          <LoadingSpinnerSVG /> <span className='text-lg'>Uploading...</span>
-        </div>,
-        {
-          duration: 100000,
-          id: 'upload-begin',
-        },
-      )
+     onBeforeUploadBegin(files) {
+      setIsSubmit(true)
+      return files
     },
     onUploadError,
     onClientUploadComplete,
@@ -98,7 +92,7 @@ const UploadButton = ({
     <div>
       <label
         htmlFor='upload-button'
-        className='cursor-pointer mx-4 flex items-center'
+        className='mx-4 flex cursor-pointer items-center'
       >
         {isUploading ? (
           <div className='animate-spin'>

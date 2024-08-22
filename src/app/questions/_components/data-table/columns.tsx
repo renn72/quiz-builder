@@ -216,6 +216,44 @@ export const columns: ColumnDef<GetQuestion>[] = [
     },
   },
   {
+    accessorKey: 'image',
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title='Image'
+      />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className='flex w-min items-center truncate'>
+          {row.original?.images?.length}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: 'pdf',
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title='PDF'
+      />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className='flex w-min items-center truncate'>
+          {row.original?.pdfs.length}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
     id: 'actions',
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },

@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 
 import {
   Dialog,
@@ -13,8 +14,12 @@ import { CirclePlus } from 'lucide-react'
 import { QuestionForm } from './question-form'
 
 export const QuestionModal = () => {
+const [isOpen, setIsOpen] = useState(false)
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <DialogTrigger asChild>
         <CirclePlus
           size={28}
@@ -26,7 +31,7 @@ export const QuestionModal = () => {
         <DialogHeader>
           <DialogTitle>Create Question</DialogTitle>
         </DialogHeader>
-        <QuestionForm />
+        <QuestionForm setIsOpen={setIsOpen} />
         <DialogDescription></DialogDescription>
       </DialogContent>
     </Dialog>

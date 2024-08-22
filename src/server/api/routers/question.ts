@@ -55,8 +55,8 @@ const createSchema = z.object({
   topics: z.array(topicSchema).optional(),
   multipleChoiceOptions: z.array(z.string()).optional(),
   tags: z.array(tagSchema).optional(),
-  images: z.array(imageSchema).optional(),
-  pdfs: z.array(pdfSchema).optional(),
+  image: z.string().optional(),
+  pdf: z.string().optional(),
 })
 
 export const questionRouter = createTRPCRouter({
@@ -70,6 +70,8 @@ export const questionRouter = createTRPCRouter({
           message: 'You must be logged in to create a question',
         })
       }
+
+      console.log('input', input)
 
       const res = await ctx.db
         .insert(question)
@@ -114,27 +116,39 @@ export const questionRouter = createTRPCRouter({
         await ctx.db.batch(tagInputs)
       }
 
-      const imageInputs = input.images?.map((image) =>
-        ctx.db.insert(imagesToQuestion).values({
-          imageId: image.id,
+      if (input.image) {
+        await ctx.db.insert(imagesToQuestion).values({
+          imageId: Number(input.image),
           questionId: questionId,
-        }),
-      )
-
-      if (imageInputs && isTuple(imageInputs)) {
-        await ctx.db.batch(imageInputs)
+        })
       }
-
-      const pdfInputs = input.pdfs?.map((pdf) =>
-        ctx.db.insert(pdfsToQuestion).values({
-          pdfId: pdf.id,
+      if (input.pdf) {
+        await ctx.db.insert(pdfsToQuestion).values({
+          pdfId: Number(input.pdf),
           questionId: questionId,
-        }),
-      )
-
-      if (pdfInputs && isTuple(pdfInputs)) {
-        await ctx.db.batch(pdfInputs)
+        })
       }
+      // const imageInputs = input.images?.map((image) =>
+      //   ctx.db.insert(imagesToQuestion).values({
+      //     imageId: image.id,
+      //     questionId: questionId,
+      //   }),
+      // )
+      //
+      // if (imageInputs && isTuple(imageInputs)) {
+      //   await ctx.db.batch(imageInputs)
+      // }
+      //
+      // const pdfInputs = input.pdfs?.map((pdf) =>
+      //   ctx.db.insert(pdfsToQuestion).values({
+      //     pdfId: pdf.id,
+      //     questionId: questionId,
+      //   }),
+      // )
+      //
+      // if (pdfInputs && isTuple(pdfInputs)) {
+      //   await ctx.db.batch(pdfInputs)
+      // }
 
       return res
     }),
@@ -197,28 +211,17 @@ export const questionRouter = createTRPCRouter({
           await ctx.db.batch(tagInputs)
         }
 
-        console.log('image check')
-        const imageInputs = input.images?.map((image) =>
-          ctx.db.insert(imagesToQuestion).values({
-            imageId: image.id,
+        if (input.image) {
+          await ctx.db.insert(imagesToQuestion).values({
+            imageId: Number(input.image),
             questionId: questionId,
-          }),
-        )
-
-        if (imageInputs && isTuple(imageInputs)) {
-          await ctx.db.batch(imageInputs)
+          })
         }
-
-        console.log('pdf check')
-        const pdfInputs = input.pdfs?.map((pdf) =>
-          ctx.db.insert(pdfsToQuestion).values({
-            pdfId: pdf.id,
+        if (input.pdf) {
+          await ctx.db.insert(pdfsToQuestion).values({
+            pdfId: Number(input.pdf),
             questionId: questionId,
-          }),
-        )
-
-        if (pdfInputs && isTuple(pdfInputs)) {
-          await ctx.db.batch(pdfInputs)
+          })
         }
       }
 
@@ -226,6 +229,7 @@ export const questionRouter = createTRPCRouter({
     }),
   getAllQuestions: publicProcedure.query(async ({ ctx }) => {
     const res = await ctx.db.query.question.findMany({
+      orderBy: (question, { desc }) => [desc(question.createdAt)],
       with: {
         topics: {
           with: {
@@ -253,7 +257,7 @@ export const questionRouter = createTRPCRouter({
   }),
   get: publicProcedure.input(z.number()).query(async ({ input, ctx }) => {
     const res = await ctx.db.query.question.findFirst({
-      where: (question, {eq}) => eq(question.id, input),
+      where: (question, { eq }) => eq(question.id, input),
       with: {
         topics: {
           with: {

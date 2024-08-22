@@ -72,6 +72,10 @@
   @apply hidden;
 }
 
+.cl-footer {
+  @apply hidden;
+}
+
 .disable-select {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */

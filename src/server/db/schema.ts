@@ -65,6 +65,7 @@ export const question = createTable('question', {
   case: text('case'),
   question: text('question'),
   answer: text('answer'),
+  numberOfAnswers: int('number_of_answers', { mode: 'number' }),
   multipleChoiceOptions: text('multiple_choice_options'),
   type: text('type'),
   state: text('state'),
