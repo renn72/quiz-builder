@@ -6,6 +6,14 @@ await import('./src/env.js')
 
 /** @type {import("next").NextConfig} */
 const coreConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
+    ],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

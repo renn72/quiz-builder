@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table'
 
+import PdfViewer from '@/app/_components/PdfViewer'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 
@@ -9,11 +10,17 @@ import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@/components/ui/hover-card"
-
+} from '@/components/ui/hover-card'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
 import { GetQuestion } from '@/lib/types'
+import { Paperclip } from 'lucide-react'
+import Image from 'next/image'
 
 export const columns: ColumnDef<GetQuestion>[] = [
   {
@@ -82,9 +89,9 @@ export const columns: ColumnDef<GetQuestion>[] = [
       return (
         <HoverCard>
           <HoverCardTrigger asChild>
-        <div className='flex w-[200px] items-center truncate'>
-          {row.getValue('case')}
-        </div>
+            <div className='flex w-[200px] items-center truncate'>
+              {row.getValue('case')}
+            </div>
           </HoverCardTrigger>
           <HoverCardContent className='w-min'>
             <div className='flex w-[200px] items-center'>
@@ -110,9 +117,9 @@ export const columns: ColumnDef<GetQuestion>[] = [
       return (
         <HoverCard>
           <HoverCardTrigger asChild>
-        <div className='flex w-[200px] items-center truncate'>
-          {row.getValue('question')}
-        </div>
+            <div className='flex w-[200px] items-center truncate'>
+              {row.getValue('question')}
+            </div>
           </HoverCardTrigger>
           <HoverCardContent className='w-min'>
             <div className='flex w-[200px] items-center'>
@@ -155,9 +162,12 @@ export const columns: ColumnDef<GetQuestion>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className='flex w-[250px] items-center flex-wrap gap-1'>
-          {row.original?.topics.map((topic,) => (
-            <Badge key={topic.id} className=''>
+        <div className='flex w-[250px] flex-wrap items-center gap-1'>
+          {row.original?.topics.map((topic) => (
+            <Badge
+              key={topic.id}
+              className=''
+            >
               {topic.topic?.name}
             </Badge>
           ))}
@@ -166,7 +176,7 @@ export const columns: ColumnDef<GetQuestion>[] = [
     },
     filterFn: (row, id, values) => {
       // @ts-ignore
-      const topics =row.getValue(id)?.map((topic) => topic.topic?.name)
+      const topics = row.getValue(id)?.map((topic) => topic.topic?.name)
       if (!topics) return false
       let result = false
       for (const value of values) {
@@ -190,9 +200,12 @@ export const columns: ColumnDef<GetQuestion>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className='flex w-[250px] items-center flex-wrap gap-1'>
-          {row.original?.tags.map((tag,) => (
-            <Badge key={tag.id} className=''>
+        <div className='flex w-[250px] flex-wrap items-center gap-1'>
+          {row.original?.tags.map((tag) => (
+            <Badge
+              key={tag.id}
+              className=''
+            >
               {tag.tag?.name}
             </Badge>
           ))}
@@ -201,7 +214,7 @@ export const columns: ColumnDef<GetQuestion>[] = [
     },
     filterFn: (row, id, values) => {
       // @ts-ignore
-      const tags =row.getValue(id)?.map((tag) => tag.tag?.name)
+      const tags = row.getValue(id)?.map((tag) => tag.tag?.name)
       if (!tags) return false
       let result = false
       for (const value of values) {
@@ -226,7 +239,25 @@ export const columns: ColumnDef<GetQuestion>[] = [
     cell: ({ row }) => {
       return (
         <div className='flex w-min items-center truncate'>
-          {row.original?.images?.length}
+          {row.original?.images && row.original?.images.length > 0 ? (
+            <Popover>
+              <PopoverTrigger>
+                <Paperclip size={16} />
+              </PopoverTrigger>
+              <PopoverContent className='w-max'>
+                {row.original?.images[0]?.image?.url ? (
+                  <Image
+                    src={row.original?.images[0]?.image?.url}
+                    alt={row.original?.images[0].image.id.toString()}
+                    width={200}
+                    height={200}
+                  />
+                ) : null}
+              </PopoverContent>
+            </Popover>
+          ) : (
+            ''
+          )}
         </div>
       )
     },
@@ -244,8 +275,23 @@ export const columns: ColumnDef<GetQuestion>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className='flex w-min items-center truncate'>
-          {row.original?.pdfs.length}
+        <div className='flex w-min items-center'>
+          {row.original?.pdfs && row.original?.pdfs.length > 0 ? (
+            <Popover>
+              <PopoverTrigger>
+                <Paperclip size={16} />
+              </PopoverTrigger>
+              <PopoverContent className='w-max'>
+                {row.original?.pdfs[0]?.pdf?.url ? (
+                  <PdfViewer
+                    file={row.original?.pdfs[0]?.pdf?.url}
+                  />
+                ) : null}
+              </PopoverContent>
+            </Popover>
+          ) : (
+            ''
+          )}
         </div>
       )
     },
