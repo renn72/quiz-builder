@@ -119,6 +119,10 @@ const createQuestion = async (input, ctx, user) => {
 }
 
 export const questionRouter = createTRPCRouter({
+  deleteAll: publicProcedure.mutation(async ({ ctx }) => {
+    await ctx.db.delete(question)
+    return true
+  }),
   createQuestion: publicProcedure
     .input(createSchema)
     .mutation(async ({ input, ctx }) => {
@@ -264,6 +268,37 @@ export const questionRouter = createTRPCRouter({
 
       return true
     }),
+  getAllQuestionsLimited: publicProcedure
+    .input(z.object({ limit: z.number() }))
+    .query(async ({ input, ctx }) => {
+    const res = await ctx.db.query.question.findMany({
+      orderBy: (question, { desc }) => [desc(question.createdAt)],
+      with: {
+        topics: {
+          with: {
+            topic: true,
+          },
+        },
+        tags: {
+          with: {
+            tag: true,
+          },
+        },
+        images: {
+          with: {
+            image: true,
+          },
+        },
+        pdfs: {
+          with: {
+            pdf: true,
+          },
+        },
+      },
+      limit: input.limit,
+    })
+    return res
+  }),
   getAllQuestions: publicProcedure.query(async ({ ctx }) => {
     const res = await ctx.db.query.question.findMany({
       orderBy: (question, { desc }) => [desc(question.createdAt)],

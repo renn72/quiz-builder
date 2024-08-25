@@ -19,9 +19,12 @@ const Page = () => {
   const { mutate: createManyTopics } =
     api.question.createManyTopics.useMutation()
   const { mutate: createManyTags } = api.question.createManyTags.useMutation()
+  const { mutate: deleteAll } = api.question.deleteAll.useMutation()
 
   const { data: questions, isLoading: isLoadingQuestions } =
-    api.question.getAllQuestions.useQuery()
+    api.question.getAllQuestionsLimited.useQuery({
+      limit: 10,
+    })
 
   const handleCreateTopic = () => {
     createManyTopics(testTopics)
@@ -29,6 +32,10 @@ const Page = () => {
 
   const handleCreateTag = () => {
     createManyTags(testTags)
+  }
+
+  const handleDeleteAll = () => {
+    deleteAll()
   }
 
   const handleCreateQuestions = () => {
@@ -68,10 +75,11 @@ const Page = () => {
       <div className='flex flex-col gap-4'>
         {questions ? <DataTable questions={questions} /> : null}
       </div>
-      <div className='flex  gap-4'>
+      <div className='flex hidden  gap-4'>
         <Button onClick={handleCreateQuestions}>Create Questions</Button>
         <Button onClick={handleCreateTopic}>Create Topics</Button>
         <Button onClick={handleCreateTag}>Create Tags</Button>
+        <Button onClick={handleDeleteAll}>Delete All</Button>
       </div>
     </div>
   )
