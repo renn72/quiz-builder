@@ -1,1 +1,0 @@
-ALTER TABLE `qb_question` ADD `number_of_answers` integer;

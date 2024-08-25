@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1724208819880,
-      "tag": "0000_blushing_captain_america",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1724297996812,
-      "tag": "0001_strong_zemo",
+      "when": 1724550816416,
+      "tag": "0000_heavy_shadowcat",
       "breakpoints": true
     }
   ]

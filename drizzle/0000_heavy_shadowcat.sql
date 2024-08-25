@@ -49,6 +49,7 @@ CREATE TABLE `qb_question` (
 	`case` text,
 	`question` text,
 	`answer` text,
+	`number_of_answers` integer,
 	`multiple_choice_options` text,
 	`type` text,
 	`state` text,
